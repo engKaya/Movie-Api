@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
+const mongoose = require('mongoose')
 const Movie = require('../models/Movie')
 
 /* GET users listing. */
@@ -25,7 +26,16 @@ router.post('/', (req, res, next)=> {
 });
 
 router.get('/',(req,res)=>{
-    const promise = Movie.find({})
+    const promise = Movie.aggregate([
+        {
+            $lookup:{ from: 'directors', localField:'director_id', foreignField:'_id', as :'director' }
+        },
+
+    ])
+
+
+
+
     promise.then((data)=>{
         res.json(data)
     }).catch((err)=>{
