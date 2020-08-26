@@ -4,19 +4,29 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
+const config = require('./config')
+
 const indexRouter = require('./routes');
 const movieRouter = require('./routes/movie');
 const directorRouter = require('./routes/director');
 
 const app = express();
 
+
+app.set('api_secret_key',config.api_secret_key)
+
 //db bağlantı
 
 const db = require('./helper/db')();
 
+//middle
+const verifyToken = require('./middleware/verifytoken')
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -24,7 +34,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/register', indexRouter);
+
+app.use('/', indexRouter);
+app.use('/api',verifyToken)
 app.use('/api/movie', movieRouter);
 app.use('/api/director', directorRouter);
 
